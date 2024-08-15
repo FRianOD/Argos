@@ -11,7 +11,7 @@ namespace Projeto_Teste1
     {
 
         private List<(EventLogEntry Inicio, EventLogEntry Fim)> eventLogs = new List<(EventLogEntry, EventLogEntry)>();
-
+            
         public LogsPuxados()
         {
             InitializeComponent();
@@ -44,10 +44,9 @@ namespace Projeto_Teste1
 
         private void ListaDeLogs_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (ListaDeLogs.SelectedIndex != -1)
+            if (ListaDeLogs.SelectedIndex >= 0)
             {
                 ListaDeLogsImportantes.Items.Clear();
-
                 string[] parts = ListaDeLogs.SelectedItem.ToString().Split(new[] {"-", "Inicio: ", "Fim: " }, StringSplitOptions.RemoveEmptyEntries);
 
                 string[] dataEHoraI = parts[0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -55,7 +54,7 @@ namespace Projeto_Teste1
 
                 int[] dataI = dataEHoraI[0].Split('/').Select(int.Parse).ToArray();
                 int[] horaI = dataEHoraI[1].Split(':').Select(int.Parse).ToArray();
-                int[] dataF = dataEHoraF[0].Split('/').Select(int.Parse).ToArray();
+                int[] dataF = dataEHoraF[0].Split('/').Select(int.Parse).ToArray();               
                 int[] horaF = dataEHoraF[1].Split(':').Select(int.Parse).ToArray();
 
                 DateTime dataInicio = new DateTime(dataI[2], dataI[1], dataI[0], horaI[0], horaI[1], horaI[2]);
@@ -63,22 +62,48 @@ namespace Projeto_Teste1
 
                 PopulateListaDeLogsImportantes(dataInicio, dataFim);
             }
+            
         }
 
         private void PopulateListaDeLogsImportantes(DateTime dataInicio, DateTime dataFim)
         {
-            string logName = "Security";
+            string logAplicacao = "Application";
+            string logSistema = "System";
+            string logSeguranca = "Security";
 
-            EventLog securityLog = new EventLog(logName);
-            Console.WriteLine("Oi, estou aqui!!");
-            Console.WriteLine($"Esta é a data de inicio {dataInicio.ToString()}");
-            Console.WriteLine($"Esta é a data de fim {dataFim.ToString()}");
 
-            var logTeste = securityLog.Entries.Cast<EventLogEntry>().Where(i => i.TimeGenerated >= dataInicio && i.TimeGenerated <= dataFim).OrderByDescending(i => i.TimeGenerated).Take(10);
-            foreach (var log in logTeste)
+            EventLog applicationLog = new EventLog(logAplicacao);
+            EventLog systemLog = new EventLog(logSistema);
+            EventLog securityLog = new EventLog(logSeguranca);
+
+            var logTesteApp = applicationLog.Entries.Cast<EventLogEntry>().Where(i => i.TimeGenerated >= dataInicio && i.TimeGenerated <= dataFim).OrderByDescending(i => i.TimeGenerated);
+            var logTesteSys = systemLog.Entries.Cast<EventLogEntry>().Where(i => i.TimeGenerated >= dataInicio && i.TimeGenerated <= dataFim).OrderByDescending(i => i.TimeGenerated);
+            var logTesteSec = securityLog.Entries.Cast<EventLogEntry>().Where(i => i.TimeGenerated >= dataInicio && i.TimeGenerated <= dataFim).OrderByDescending(i => i.TimeGenerated);
+
+            var logsPrincipais = logTesteApp.Where(i => i.EventID == 900||
+            (i.EventID == 1000) ||
+            (i.EventID == 41) ||
+            (i.EventID == 1000) ||
+            (i.EventID == 1000));
+            if (logsPrincipais.Count() == 0)
             {
-                Console.WriteLine(log.TimeGenerated);
-                ListaDeLogsImportantes.Items.Add($"{log.TimeGenerated}");
+                ListaDeLogsImportantes.Items.Add("Sem logs importantes encontrados, caso precise faça uma busca");
+            }
+            else
+            {
+                foreach (var log in logsPrincipais)
+                {
+                    ListaDeLogsImportantes.Items.Add($"{log.Category} {log.EntryType}, {log.TimeGenerated}");
+                }
+            }
+            
+        }
+
+        private void ListaDeLogsImportantes_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (sender != "Sem logs importantes encontrados, mas caso precise faça uma busca" );
+            {
+                Console.WriteLine(sender.ToString());
             }
         }
     }

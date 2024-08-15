@@ -60,6 +60,7 @@
             this.ListaDeLogsImportantes.Name = "ListaDeLogsImportantes";
             this.ListaDeLogsImportantes.Size = new System.Drawing.Size(775, 303);
             this.ListaDeLogsImportantes.TabIndex = 2;
+            this.ListaDeLogsImportantes.SelectedIndexChanged += new System.EventHandler(this.ListaDeLogsImportantes_SelectedIndexChanged);
             // 
             // LogsPuxados
             // 

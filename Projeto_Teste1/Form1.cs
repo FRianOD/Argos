@@ -22,22 +22,29 @@ namespace Projeto_Teste1
             List<EventLogEntry> inicioEventLogs = new List<EventLogEntry>();
             List<EventLogEntry> fimEventLogs = new List<EventLogEntry>();
 
-            var inicioLog = systemLog.Entries.Cast<EventLogEntry>().Where(i => i.EventID == 6005).OrderByDescending(i => i.TimeGenerated);
+            var inicioLog = systemLog.Entries.Cast<EventLogEntry>().Where(i => (i.EventID == 6005)).OrderByDescending(i => i.TimeGenerated);
             var fimLog = systemLog.Entries.Cast<EventLogEntry>().Where(i => i.EventID == 6006).OrderByDescending(i => i.TimeGenerated);
 
-            var ultimoInicio = inicioLog.FirstOrDefault();
-            var ultimoFim = fimLog.FirstOrDefault();
-
-            if (ultimoInicio != null && ultimoFim != null)
+            if (inicioLog != null && fimLog != null)
             {
                 inicioEventLogs.AddRange(inicioLog);
                 fimEventLogs.AddRange(fimLog);
 
                 List<(EventLogEntry Inicio, EventLogEntry Fim)> eventosCombinados = new List<(EventLogEntry, EventLogEntry)>(7);
-
-                for (int i = 1; i < 8 && i - 1 < fimEventLogs.Count; i++)
+                var i = 0;
+                var j = 0;
+                while(eventosCombinados.Count<7)
                 {
-                    eventosCombinados.Add((inicioEventLogs[i], fimEventLogs[i - 1]));
+                    if (inicioEventLogs[i].TimeGenerated > fimEventLogs[j].TimeGenerated)
+                    {
+                        i++;
+                    }
+                    else
+                    {
+                        eventosCombinados.Add((inicioEventLogs[i], fimEventLogs[j]));
+                        i++;
+                        j++;
+                    }
                 }
 
                 LogsPuxados telaDeLogs = new LogsPuxados(eventosCombinados);
